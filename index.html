@@ -133,13 +133,15 @@
         }
 
         async function generateHMACSHA256() {
+            document.getElementById('hmacResult').value = '';
             const fileInput = document.getElementById('fileInput');
             const rawData = document.getElementById('rawData').value;
             const secretKey = document.getElementById('secretKey').value;
+            let generatingIndicator = document.getElementById('generatingIndicator');
             let fileContent = '';
 
             // Show the "Generating..." indicator
-            document.getElementById('generatingIndicator').style.display = 'inline';
+            generatingIndicator.style.display = 'inline';
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
@@ -147,18 +149,18 @@
                     fileContent = await readFileAsText(file);
                 } catch (error) {
                     alert('Error reading file: ' + error.message);
-                    document.getElementById('generatingIndicator').style.display = 'none';
+                    generatingIndicator.style.display = 'none';
                     return;
                 }
             } else if (!rawData) {
                 alert('Please enter some text or select a file.');
-                document.getElementById('generatingIndicator').style.display = 'none';
+                generatingIndicator.style.display = 'none';
                 return;
             }
 
             if (!secretKey) {
                 alert('Please enter a secret key.');
-                document.getElementById('generatingIndicator').style.display = 'none';
+                generatingIndicator.style.display = 'none';
                 return;
             }
 
@@ -177,7 +179,7 @@
             }
 
             // Hide the "Generating..." indicator
-            document.getElementById('generatingIndicator').style.display = 'none';
+            generatingIndicator.style.display = 'none';
         }
 
         function readFileAsText(file) {
