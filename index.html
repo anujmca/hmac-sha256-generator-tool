@@ -107,7 +107,10 @@
             <button onclick="generateHMACSHA256()">Generate HMAC-SHA256</button>
         </div>
         <div class="form-group">
-            <label for="hmacResult">HMAC Result:</label>
+            <label for="hmacResult">
+                HMAC Result:
+                <span id="generatingIndicator" style="color: #626466; font-weight: normal; display: none; ">Generating...</span>
+            </label>
             <textarea id="hmacResult" rows="3" readonly style="margin-top:0px;"></textarea>
         </div>
     </div>
@@ -135,25 +138,27 @@
             const secretKey = document.getElementById('secretKey').value;
             let fileContent = '';
 
+            // Show the "Generating..." indicator
+            document.getElementById('generatingIndicator').style.display = 'inline';
+
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                // if (file.size > 10 * 1024 * 1024) { // 10MB limit for reading file content directly
-                //     alert('File is too large to read directly. Please use the text area for smaller inputs or ensure your file is under 10MB.');
-                //     return;
-                // }
                 try {
                     fileContent = await readFileAsText(file);
                 } catch (error) {
                     alert('Error reading file: ' + error.message);
+                    document.getElementById('generatingIndicator').style.display = 'none';
                     return;
                 }
             } else if (!rawData) {
                 alert('Please enter some text or select a file.');
+                document.getElementById('generatingIndicator').style.display = 'none';
                 return;
             }
 
             if (!secretKey) {
                 alert('Please enter a secret key.');
+                document.getElementById('generatingIndicator').style.display = 'none';
                 return;
             }
 
@@ -165,12 +170,14 @@
             }
 
             try {
-                // Generate HMAC SHA256
                 const hmac = CryptoJS.HmacSHA256(inputData, secretKey);
                 document.getElementById('hmacResult').value = hmac.toString(CryptoJS.enc.Hex);
             } catch (error) {
                 document.getElementById('hmacResult').value = 'Error generating HMAC: ' + error.message;
             }
+
+            // Hide the "Generating..." indicator
+            document.getElementById('generatingIndicator').style.display = 'none';
         }
 
         function readFileAsText(file) {
