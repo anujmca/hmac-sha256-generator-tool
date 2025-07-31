@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMAC SHA256 Hash Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], button, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #hmacResult {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HMAC SHA256 Hash Generator</h1>
+
+        <div class="form-group">
+            <label for="fileInput">Select File:</label>
+            <input type="file" id="fileInput" accept="*.*">
+        </div>
+
+        <div class="form-group">
+            <label for="rawData">Or enter raw text:</label>
+            <textarea id="rawData" rows="5" placeholder="Enter text here..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="secretKey">Secret Key:</label>
+            <input type="text" id="secretKey" placeholder="Enter secret key" value="995AEFE9BD49DBC18A12DA173AF8D">
+        </div>
+
+        <div class="form-group">
+            <button onclick="generateHMACSHA256()">Generate HMAC-SHA256</button>
+        </div>
+        <div class="form-group">
+            <label for="hmacResult">HMAC Result:</label>
+            <textarea id="hmacResult" rows="3" readonly style="margin-top:0px;"></textarea>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('rawData').value = ''; // Clear raw text when file is selected
+            }
+        });
+
+        async function generateHMACSHA256() {
+            const fileInput = document.getElementById('fileInput');
+            const rawData = document.getElementById('rawData').value;
+            const secretKey = document.getElementById('secretKey').value;
+            let fileContent = '';
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit for reading file content directly
+                    alert('File is too large to read directly. Please use the text area for smaller inputs or ensure your file is under 10MB.');
+                    return;
+                }
+                try {
+                    fileContent = await readFileAsText(file);
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                    return;
+                }
+            } else if (!rawData) {
+                alert('Please enter some text or select a file.');
+                return;
+            }
+
+            if (!secretKey) {
+                alert('Please enter a secret key.');
+                return;
+            }
+
+            let inputData;
+            if (fileContent) {
+                inputData = fileContent;
+            } else {
+                inputData = rawData;
+            }
+
+            try {
+                // Generate HMAC SHA256
+                const hmac = CryptoJS.HmacSHA256(inputData, secretKey);
+                document.getElementById('hmacResult').value = hmac.toString(CryptoJS.enc.Hex);
+            } catch (error) {
+                document.getElementById('hmacResult').value = 'Error generating HMAC: ' + error.message;
+            }
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e.target.error);
+                reader.readAsText(file);
+            });
+        }
+    </script>
+</body>
+</html>
