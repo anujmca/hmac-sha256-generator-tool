@@ -67,12 +67,25 @@
             font-family: 'Courier New', monospace;
             word-break: break-all;
         }
+        .reload {
+            font-family: Lucida Sans Unicode;
+            font-weight: bolder;
+            cursor: pointer;
+            background-color: #1b9300;
+            transition: background-color 0.3s;
+            color:white;
+            border-radius: 25px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .reload:hover {
+            background-color: #62d42e;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>HMAC SHA256 Hash Generator</h1> 
-
+        <h1>HMAC SHA256 Hash Generator <span class="reload" title="Reset Form" onclick="reset()">&#x21bb;</span></h1> 
         <div class="form-group">
             <label for="fileInput">Select File:</label>
             <input type="file" id="fileInput" accept="*.*">
@@ -98,12 +111,21 @@
     </div>
 
     <script>
+        const defaultSecretKey = "995AEFE9BD49DBC18A12DA173AF8D";
+
         document.getElementById('fileInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
                 document.getElementById('rawData').value = ''; // Clear raw text when file is selected
             }
         });
+
+        async function reset() {
+            document.getElementById('fileInput').value = "";
+            document.getElementById('rawData').value = "";
+            document.getElementById('secretKey').value = defaultSecretKey;
+            document.getElementById('hmacResult').value = "";
+        }
 
         async function generateHMACSHA256() {
             const fileInput = document.getElementById('fileInput');
@@ -113,10 +135,10 @@
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                if (file.size > 10 * 1024 * 1024) { // 10MB limit for reading file content directly
-                    alert('File is too large to read directly. Please use the text area for smaller inputs or ensure your file is under 10MB.');
-                    return;
-                }
+                // if (file.size > 10 * 1024 * 1024) { // 10MB limit for reading file content directly
+                //     alert('File is too large to read directly. Please use the text area for smaller inputs or ensure your file is under 10MB.');
+                //     return;
+                // }
                 try {
                     fileContent = await readFileAsText(file);
                 } catch (error) {
